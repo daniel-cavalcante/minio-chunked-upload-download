@@ -1,6 +1,7 @@
 import os
 from typing import Any
 from flask import Flask, render_template, request
+from flask_cors import CORS
 from minio import Minio
 
 from werkzeug.utils import secure_filename
@@ -14,6 +15,7 @@ MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY") or "minioadmin"
 MINIO_IS_SECURE = os.getenv("MINIO_IS_SECURE") or "False"
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 storage = Minio(MINIO_ENDPOINT,
                 MINIO_ACCESS_KEY,
                 MINIO_SECRET_KEY,
