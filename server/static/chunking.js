@@ -1,5 +1,6 @@
 let file, fileId, fileName, fileSize, chunksTotal
 const CHUNK_SIZE = 5 * 1024 * 1024
+const BASE_URL = "http://localhost:5000"
 
 const input = document.getElementById("input")
 
@@ -34,4 +35,24 @@ const createChunk = (file, index) => {
     chunkForm.append('fileSize', fileSize.toString());
 
     return chunkForm;
+};
+
+const uploadChunk = async (chunkForm, index) => {
+    const headers = new Headers();
+    headers.append("Content-Type", "multipart/form-data")
+
+    const init = {
+        method: "POST",
+        mode: "cors",
+        headers: headers,
+        body: chunkForm
+    }
+
+    const response = await fetch(BASE_URL + '/upload', init);
+
+    if (response.status == 201) {
+        console.info(`chunk #${index} was uploaded successfully`);
+    } else {
+        console.error(`upload of chunk #${index} has failed`);
+    }
 };
