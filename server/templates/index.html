@@ -6,17 +6,11 @@
   </head>
   <body>
     <h1>Chunked File Transfer</h1>
-    <form
-      method="post"
-      action="{{ url_for('upload') }}"
-      enctype="multipart/form-data"
-      target="_blank"
-    >
-      <div>
-        <label for="file"></label>
-        <input type="file" id="file" name="myFile" />
-        <button>Send file</button>
-      </div>
-    </form>
+    <div>
+      <label for="input"></label>
+      <input type="file" id="fileInput" name="file" />
+      <button id="sendButton">Send file</button>
+    </div>
   </body>
+  <script src="{{ url_for('static', filename='chunking.js') }}"></script>
 </html>
