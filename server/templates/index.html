@@ -8,8 +8,8 @@
     <h1>Chunked File Transfer</h1>
     <div>
       <label for="input"></label>
-      <input type="file" id="input" />
-      <button id="button">Send file</button>
+      <input type="file" id="fileInput" name="file" />
+      <button id="sendButton">Send file</button>
     </div>
   </body>
   <script src="{{ url_for('static', filename='chunking.js') }}"></script>
