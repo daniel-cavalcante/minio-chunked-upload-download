@@ -60,5 +60,11 @@ def upload():
     return {"success": success}, 201
 
 
+@app.route("/download")
+def download():
+    bucket_list = [bucket.name for bucket in storage.list_buckets()]
+    return bucket_list
+
+
 if __name__ == "__main__":
     app.run(debug=True)

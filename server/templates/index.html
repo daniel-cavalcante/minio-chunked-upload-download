@@ -7,10 +7,14 @@
   <body>
     <h1>Chunked File Transfer</h1>
     <div>
+      <ol id="storedFilesList"></ul>
+    </div>
+    <div>
       <label for="input"></label>
       <input type="file" id="fileInput" name="file" />
       <button id="sendButton">Send file</button>
     </div>
   </body>
+  <script src="{{ url_for('static', filename='download.js') }}"></script>
   <script src="{{ url_for('static', filename='chunking.js') }}"></script>
 </html>
