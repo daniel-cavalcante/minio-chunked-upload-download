@@ -17,7 +17,8 @@ const handleClick = () => {
   const chunksTotal = Math.ceil(file.size / CHUNK_SIZE);
 
   // set file identifier to be used by the server to handle exceptions
-  const fileId = crypto.randomUUID();
+  console.warn("crypto.randomUUID is available only in secure contexts");
+  const fileId = crypto.randomUUID().replaceAll("-", "");
 
   for (let chunkIndex = 0; chunkIndex < chunksTotal; chunkIndex++) {
     // each loop picks a chunk of file to be sent to the server
