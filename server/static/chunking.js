@@ -77,6 +77,6 @@ const sendData = (formData) => {
 
   // sets up the request then sends the form
   // HTTP headers are set automatically
-  XHR.open("POST", BASE_URL + "/chunk/upload");
+  XHR.open("POST", BASE_URL + "/upload");
   XHR.send(formData);
 };
