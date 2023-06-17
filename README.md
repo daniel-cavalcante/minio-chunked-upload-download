@@ -10,9 +10,11 @@ This upload process is done via chunking, that is, the original file is sliced i
 
 On the server, each request mentioned above calls a MinIO method responsible for storing the data in buckets. For each file, a new bucket is created. The name of each bucket is a unique identifier and each chunk inside this bucket is named after the original file with the suffix "partXofY" where X is the current chunk index (+1) and Y is the total number of chunks. The total number of chunks is determined on the client side by the formula
 
-total number of chunks = ceiling(file.size/CHUNK_SIZE)
+```
+chunksTotal = Math.ceil(file.size / CHUNK_SIZE)
+```
 
-where CHUNK_SIZE is a constant set to 5MB by default and file.size is the size of the file selected by the user.
+where `CHUNK_SIZE` is a constant set to 5MB by default and `file.size` is the size of the file selected, set on the input element "change" event.
 
 ## Download logic
 
@@ -22,7 +24,7 @@ To be implemented.
 
 To be implemented.
 
-## Exceptions
+## Handling of exceptions
 
 To be implemented.
 
