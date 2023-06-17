@@ -37,8 +37,6 @@ const handleClick = () => {
       chunkIndex: chunkIndex,
       chunksTotal: chunksTotal,
       originalFileId: fileId,
-      originalFileName: file.name,
-      originalFileSize: file.size,
     };
 
     const chunkFormData = getFormData(chunk, chunkMetaData);
@@ -53,11 +51,13 @@ button.addEventListener("click", handleClick);
 const getFormData = (chunk, metaData) => {
   const chunkForm = new FormData();
 
+  // appending metaData attributes, but notice most of these is unused
   for (const [key, value] of Object.entries(metaData)) {
     chunkForm.append(key, value);
   }
   // append the slice blob with a unique name indicating its part
-  const chunkName = metaData.originalFileName + ".part" + metaData.chunkIndex;
+  const chunkName =
+    file.name + ".part" + ++metaData.chunkIndex + "of" + metaData.chunksTotal;
   chunkForm.append("chunk", chunk, chunkName);
 
   return chunkForm;
