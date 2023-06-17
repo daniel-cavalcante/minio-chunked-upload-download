@@ -47,13 +47,17 @@ def upload_to_storage(bucket_name: str,
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    file = request.files["myFile"]
-    assert file.filename is not None
-    success = upload_to_storage(TEMPORARY_BUCKET_NAME,
-                                secure_filename(file.filename),
-                                data=file)
+    # todo: set some form of validation after uploading all files
+    chunk = request.files["chunk"]
+    original_file_id = request.form["originalFileId"]
 
-    return {"success": success}, 200
+    name = secure_filename(chunk.filename)
+    if name == "":
+        # todo: return meaningful message to the client
+        return {"success": False}, 500
+
+    success = upload_to_storage(original_file_id, name, data=chunk)
+    return {"success": success}, 201
 
 
 if __name__ == "__main__":
