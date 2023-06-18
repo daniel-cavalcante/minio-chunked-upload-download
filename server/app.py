@@ -8,6 +8,7 @@ from minio import Minio
 from werkzeug.utils import secure_filename
 
 TEMPORARY_FILE_DIR = "/tmp/chunked-file-transfer"
+TEMPORARY_FILE_NAME = "temporary_file"
 
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT") or "localhost:9000"
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY") or "minioadmin"
@@ -85,38 +86,38 @@ def get_part_number(name: str) -> int:
     return int(y[0], base=10)
 
 
-def get_file_name(bucket_name):
-    return "temporary_file_name.deb"
-
-
 @app.route("/download/<string:bucket_name>")
 def download_bucket(bucket_name):
+    # checks if system is ready to assemble parts from storage
     try:
         assert TEMPORARY_FILE_DIR is not None
     except AssertionError:
         print(f"TEMPORARY_FILE_DIR={TEMPORARY_FILE_DIR} is invalid.")
-        raise
+        return 500
     else:
         TEMPORARY_PATH = Path(TEMPORARY_FILE_DIR)
         if not TEMPORARY_PATH.exists():
             TEMPORARY_PATH.mkdir(exist_ok=True, parents=True)
 
-    file_name = get_file_name(bucket_name)
-
-    with open(f'{TEMPORARY_PATH / file_name}', 'ab') as f:
+    # assembles the chunks together in one file, then sends to the client
+    with open(f'{TEMPORARY_PATH / TEMPORARY_FILE_NAME}', 'ab') as f:
         name_list = []
         for item in storage.list_objects(bucket_name, recursive=True):
             name_list.append(item.object_name)
 
         name_list.sort(key=get_part_number)
 
+        # similar to function get_part_number but it takes the file name
+        download_name = name_list[0].split('.part')[0]
+
         for name in name_list:
             part = storage.get_object(
                 bucket_name, name, name)
             f.write(part.data)
-            print("Part retrieved from storage to server.")
 
-    return send_file(TEMPORARY_PATH / file_name, as_attachment=True)
+    return send_file(TEMPORARY_PATH / TEMPORARY_FILE_NAME,
+                     as_attachment=True,
+                     download_name=download_name)
 
 
 if __name__ == "__main__":
