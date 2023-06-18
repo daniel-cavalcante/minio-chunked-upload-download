@@ -44,6 +44,10 @@ const handleClick = () => {
 
     sendData(chunkFormData);
   }
+
+  // notice appendBucket function comes from download.js,
+  // so the script loading order is IMPORTANT!!
+  appendBucket([fileId], document.getElementById("bucketList"), 0);
 };
 
 const button = document.getElementById("sendButton");
