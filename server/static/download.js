@@ -12,8 +12,7 @@ const getFilesList = () => {
       // anchor element referencing specific file download url
       a = document.createElement("a");
       a.setAttribute("href", DOWNLOAD_URL + "/" + bucket[index]);
-      linkText = document.createTextNode(bucket[index]);
-      a.appendChild(linkText);
+      a.innerHTML = bucket[index];
 
       // append anchor element to the list as a list item
       item = bucketList
