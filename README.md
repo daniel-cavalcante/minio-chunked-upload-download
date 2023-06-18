@@ -1,6 +1,6 @@
 # chunked-file-transfer
 
-This is a flask app used to transfer files between server and client. There are only two usecases: the client may upload(download) a file to(from) the server. Each uploaded file is stored in chunks in a MinIO storage server. This process is such a way that the client may _upload very large files without running into any browser memory issues_!
+This is a flask app used to transfer files between server and client. There are only two usecases: the client may upload(download) a file to(from) the server. Each uploaded file is stored in chunks into a MinIO storage server. This process is implemented in such a way that the client may _upload very large files without the risk of running into any browser memory issues_!
 
 ## Uploading files
 
@@ -18,7 +18,9 @@ where `CHUNK_SIZE` is a constant set to 5MB by default and `file.size` is the si
 
 ## Download logic
 
-To be implemented.
+When the user access and loads the home page, the page script automatically loads a list of buckets. Each bucket consists of a folder containing chunks of a previously uploaded file.
+
+The list of buckets are all anchors with an identifier string. When clicked, the browser downloads the associated file. Since each bucket contains a file split in many chunks, first the server puts them together in one piece and only then send the requested file back to the user.
 
 ## File validation
 

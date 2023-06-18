@@ -1,6 +1,6 @@
 // constants and the global variables
 const CHUNK_SIZE = 5 * 1024 * 1024;
-const BASE_URL = "http://localhost:5000";
+const UPLOAD_URL = "http://localhost:5000/upload";
 let file;
 
 // code that handles user selecting a file
@@ -17,7 +17,8 @@ const handleClick = () => {
   const chunksTotal = Math.ceil(file.size / CHUNK_SIZE);
 
   // set file identifier to be used by the server to handle exceptions
-  const fileId = crypto.randomUUID();
+  console.warn("crypto.randomUUID is available only in secure contexts");
+  const fileId = crypto.randomUUID().replaceAll("-", "");
 
   for (let chunkIndex = 0; chunkIndex < chunksTotal; chunkIndex++) {
     // each loop picks a chunk of file to be sent to the server
@@ -43,6 +44,10 @@ const handleClick = () => {
 
     sendData(chunkFormData);
   }
+
+  // notice appendBucket function comes from download.js,
+  // so the script loading order is IMPORTANT!!
+  appendBucket([fileId], document.getElementById("bucketList"), 0);
 };
 
 const button = document.getElementById("sendButton");
@@ -77,6 +82,6 @@ const sendData = (formData) => {
 
   // sets up the request then sends the form
   // HTTP headers are set automatically
-  XHR.open("POST", BASE_URL + "/upload");
+  XHR.open("POST", UPLOAD_URL);
   XHR.send(formData);
 };
