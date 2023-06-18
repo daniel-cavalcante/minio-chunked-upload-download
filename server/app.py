@@ -7,7 +7,7 @@ from minio import Minio
 
 from werkzeug.utils import secure_filename
 
-TEMPORARY_FILE_DIR = "/tmp/chunked-file-transfer"
+TEMPORARY_FILE_DIR = "/tmp/minio-chunked"
 TEMPORARY_FILE_NAME = "temporary_file"
 
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT") or "localhost:9000"
@@ -115,9 +115,13 @@ def download_bucket(bucket_name):
                 bucket_name, name, name)
             f.write(part.data)
 
-    return send_file(TEMPORARY_PATH / TEMPORARY_FILE_NAME,
-                     as_attachment=True,
-                     download_name=download_name)
+    try:
+        return send_file(TEMPORARY_PATH / TEMPORARY_FILE_NAME,
+                         as_attachment=True,
+                         download_name=download_name)
+    finally:
+        # delete temporary file
+        os.remove(TEMPORARY_PATH / TEMPORARY_FILE_NAME)
 
 
 if __name__ == "__main__":
