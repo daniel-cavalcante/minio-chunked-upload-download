@@ -1,6 +1,6 @@
-# Chunked file transfer: upload and download
+# Chunked File Transfer
 
-This is a flask app used to transfer files between server and client. There are only two usecases: the client may upload(download) a file to(from) the server. Each uploaded file is stored in chunks into a MinIO storage server. This process is implemented in such a way that the client may _upload very large files without the risk of running into any browser memory issues_!
+This is a flask app used to transfer files between server and client. There are only two usecases: the client may **upload a file** to the server or **download files** from it. Each uploaded file is stored in chunks into a MinIO storage server. This process is implemented in such a way that the client may _upload very large files without the risk of running into any browser memory issues_!
 
 ## Uploading a file
 
