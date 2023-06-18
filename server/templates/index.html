@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <title>Chunked File Transfer</title>
+  </head>
+  <body>
+    <h1>Chunked File Transfer</h1>
+    <div>
+      <h2>List of buckets</h2>
+      <p>Click on list item to download the corresponding file.</p>
+      <ol id="bucketList"></ul>
+    </div>
+    <div>
+      <h2>Upload new item</h2>
+      <label for="input"></label>
+      <input type="file" id="fileInput" name="file" />
+      <button id="sendButton">Send file</button>
+    </div>
+  </body>
+  <!-- DO NOT CHANGE THE ORDER OF THE SCRIPT ELEMENTS BELOW -->
+  <script src="{{ url_for('static', filename='download.js') }}"></script>
+  <script src="{{ url_for('static', filename='upload.js') }}"></script>
+</html>
