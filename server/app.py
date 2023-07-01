@@ -12,9 +12,6 @@ from minio import Minio
 
 from werkzeug.utils import secure_filename
 
-TEMPORARY_FILE_DIR = "/tmp/minio-chunked"
-TEMPORARY_FILE_NAME = "temporary_file"
-
 CHUNK_SIZE = 10 * 1024 * 1024
 
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT") or "localhost:9000"
