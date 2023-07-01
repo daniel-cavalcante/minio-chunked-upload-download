@@ -1,7 +1,12 @@
 import os
-from pathlib import Path
 from typing import Any
-from flask import Flask, render_template, request, send_file
+from flask import (
+    Flask,
+    Response,
+    render_template,
+    request,
+    stream_with_context,
+)
 from flask_cors import CORS
 from minio import Minio
 
@@ -10,6 +15,8 @@ from werkzeug.utils import secure_filename
 TEMPORARY_FILE_DIR = "/tmp/minio-chunked"
 TEMPORARY_FILE_NAME = "temporary_file"
 
+PART_SIZE = 10 * 1024 * 1024
+
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT") or "localhost:9000"
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY") or "minioadmin"
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY") or "minioadmin"
@@ -17,11 +24,13 @@ MINIO_IS_SECURE = os.getenv("MINIO_IS_SECURE") or "False"
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-storage = Minio(endpoint=MINIO_ENDPOINT,
-                access_key=MINIO_ACCESS_KEY,
-                secret_key=MINIO_SECRET_KEY,
-                # accepts capitalization variants as in FALSE, False and false
-                secure=MINIO_IS_SECURE.lower() in ['true'])
+storage = Minio(
+    endpoint=MINIO_ENDPOINT,
+    access_key=MINIO_ACCESS_KEY,
+    secret_key=MINIO_SECRET_KEY,
+    # accepts capitalization variants as in FALSE, False and false
+    secure=MINIO_IS_SECURE.lower() in ["true"],
+)
 
 
 @app.route("/")
@@ -29,17 +38,13 @@ def index():
     return render_template("index.html")
 
 
-def upload_to_storage(bucket_name: str,
-                      object_name: str,
-                      data: Any) -> bool:
+def upload_to_storage(bucket_name: str, object_name: str, data: Any) -> bool:
     try:
         if not storage.bucket_exists(bucket_name):
             storage.make_bucket(bucket_name)
-        result = storage.put_object(bucket_name,
-                                    object_name,
-                                    data.stream,
-                                    length=-1,
-                                    part_size=10*1024*1024)
+        result = storage.put_object(
+            bucket_name, object_name, data.stream, length=-1, part_size=10 * 1024 * 1024
+        )
     except Exception:
         raise
     else:
@@ -81,47 +86,44 @@ def get_part_number(name: str) -> int:
         >>> int(y[0], base=10)
         1
     """
-    x = name.split('.part')
-    y = x[-1].split('of')
+    x = name.split(".part")
+    y = x[-1].split("of")
     return int(y[0], base=10)
+
+
+def get_name_list(bucket_name) -> list[str]:
+    name_list = []
+    for item in storage.list_objects(bucket_name, recursive=True):
+        name_list.append(item.object_name)
+
+    name_list.sort(key=get_part_number)
+
+    return name_list
+
+
+def get_download_name(bucket_name):
+    name_list = get_name_list(bucket_name)
+    # similar to function get_part_number but it takes the file name
+    return name_list[0].split(".part")[0]
+
+
+def get_file_chunks(bucket_name):
+    name_list = get_name_list(bucket_name)
+    for name in name_list:
+        part = storage.get_object(bucket_name, name)
+        if part is None:
+            break
+        yield part.read(PART_SIZE)
 
 
 @app.route("/download/<string:bucket_name>")
 def download_bucket(bucket_name):
-    # checks if system is ready to assemble parts from storage
-    try:
-        assert TEMPORARY_FILE_DIR is not None
-    except AssertionError:
-        print(f"TEMPORARY_FILE_DIR={TEMPORARY_FILE_DIR} is invalid.")
-        return 500
-    else:
-        TEMPORARY_PATH = Path(TEMPORARY_FILE_DIR)
-        if not TEMPORARY_PATH.exists():
-            TEMPORARY_PATH.mkdir(exist_ok=True, parents=True)
-
-    # assembles the chunks together in one file, then sends to the client
-    with open(f'{TEMPORARY_PATH / TEMPORARY_FILE_NAME}', 'ab') as f:
-        name_list = []
-        for item in storage.list_objects(bucket_name, recursive=True):
-            name_list.append(item.object_name)
-
-        name_list.sort(key=get_part_number)
-
-        # similar to function get_part_number but it takes the file name
-        download_name = name_list[0].split('.part')[0]
-
-        for name in name_list:
-            part = storage.get_object(
-                bucket_name, name, name)
-            f.write(part.data)
-
-    try:
-        return send_file(TEMPORARY_PATH / TEMPORARY_FILE_NAME,
-                         as_attachment=True,
-                         download_name=download_name)
-    finally:
-        # delete temporary file
-        os.remove(TEMPORARY_PATH / TEMPORARY_FILE_NAME)
+    return Response(
+        stream_with_context(get_file_chunks(bucket_name)),
+        headers={
+            "Content-Disposition": f"attachment; filename={get_download_name(bucket_name)}"
+        },
+    )
 
 
 if __name__ == "__main__":
