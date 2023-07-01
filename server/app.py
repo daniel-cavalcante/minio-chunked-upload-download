@@ -15,7 +15,7 @@ from werkzeug.utils import secure_filename
 TEMPORARY_FILE_DIR = "/tmp/minio-chunked"
 TEMPORARY_FILE_NAME = "temporary_file"
 
-PART_SIZE = 10 * 1024 * 1024
+CHUNK_SIZE = 10 * 1024 * 1024
 
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT") or "localhost:9000"
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY") or "minioadmin"
@@ -43,7 +43,7 @@ def upload_to_storage(bucket_name: str, object_name: str, data: Any) -> bool:
         if not storage.bucket_exists(bucket_name):
             storage.make_bucket(bucket_name)
         result = storage.put_object(
-            bucket_name, object_name, data.stream, length=-1, part_size=10 * 1024 * 1024
+            bucket_name, object_name, data.stream, length=-1, part_size=CHUNK_SIZE
         )
     except Exception:
         raise
@@ -72,12 +72,12 @@ def download():
     return bucket_list
 
 
-def get_part_number(name: str) -> int:
-    """Get the part number from the chunk's file name string.
+def get_chunk_number(name: str) -> int:
+    """Get the chunk number from the chunk's file name string.
 
     Example:
-        >>> name="file_name.ext.part1of8"
-        >>> x=name.split('.part')
+        >>> name="file_name.ext.chunk1of8"
+        >>> x=name.split('.chunk')
         >>> x
         ['file_name.ext', '1of8']
         >>> y=x[-1].split('of')
@@ -86,7 +86,7 @@ def get_part_number(name: str) -> int:
         >>> int(y[0], base=10)
         1
     """
-    x = name.split(".part")
+    x = name.split(".chunk")
     y = x[-1].split("of")
     return int(y[0], base=10)
 
@@ -96,24 +96,24 @@ def get_name_list(bucket_name) -> list[str]:
     for item in storage.list_objects(bucket_name, recursive=True):
         name_list.append(item.object_name)
 
-    name_list.sort(key=get_part_number)
+    name_list.sort(key=get_chunk_number)
 
     return name_list
 
 
 def get_download_name(bucket_name):
     name_list = get_name_list(bucket_name)
-    # similar to function get_part_number but it takes the file name
-    return name_list[0].split(".part")[0]
+    # similar to function get_chunk_number but it takes the file name
+    return name_list[0].split(".chunk")[0]
 
 
 def get_file_chunks(bucket_name):
     name_list = get_name_list(bucket_name)
     for name in name_list:
-        part = storage.get_object(bucket_name, name)
-        if part is None:
+        chunk = storage.get_object(bucket_name, name)
+        if chunk is None:
             break
-        yield part.read(PART_SIZE)
+        yield chunk.read(CHUNK_SIZE)
 
 
 @app.route("/download/<string:bucket_name>")
