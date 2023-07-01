@@ -20,7 +20,7 @@ where `CHUNK_SIZE` is a constant set to 5MB by default and `file.size` is the si
 
 When the user access and loads the home page, the page script automatically loads a list of buckets. Each bucket consists of a folder containing chunks of a previously uploaded file.
 
-The list of buckets are all anchors with an identifier string. When clicked, the browser downloads the associated file. Since each bucket contains a file split in many chunks, first the server puts them together in one piece and only then send the requested file back to the user.
+The list of buckets are all anchors with an identifier string. When clicked, the browser downloads the associated file. Each bucket contains a file split in many chunks, so the server streams each chunk one after the other directly to the user. By streaming the chunks this way, the browser already saves everything in one single file.
 
 ## File validation
 
