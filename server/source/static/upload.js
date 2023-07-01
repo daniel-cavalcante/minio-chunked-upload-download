@@ -60,9 +60,9 @@ const getFormData = (chunk, metaData) => {
   for (const [key, value] of Object.entries(metaData)) {
     chunkForm.append(key, value);
   }
-  // append the slice blob with a unique name indicating its part
+  // append the slice blob with a descriptive name
   const chunkName =
-    file.name + ".part" + ++metaData.chunkIndex + "of" + metaData.chunksTotal;
+    file.name + ".chunk" + ++metaData.chunkIndex + "of" + metaData.chunksTotal;
   chunkForm.append("chunk", chunk, chunkName);
 
   return chunkForm;
