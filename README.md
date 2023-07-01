@@ -70,8 +70,4 @@ pip install -r requirements.txt
 flask --app source run
 ```
 
-To install it and run the server, first install the requirements listed on
-`server/requirements.txt` using `pip` (or any other similar). Then  
-
-run
-`server/app.py`. The app home page will be served on `http://localhost:5000`.
+The app home page will be served on `http://localhost:5000`.
