@@ -57,6 +57,7 @@ def upload():
     chunk = request.files["chunk"]
     original_file_id = request.form["originalFileId"]
 
+    assert chunk.filename is not None
     name = secure_filename(chunk.filename)
     if name == "":
         # todo: return meaningful message to the client
@@ -91,26 +92,24 @@ def get_chunk_number(name: str) -> int:
     return int(y[0], base=10)
 
 
-def get_name_list(bucket_name) -> list[str]:
-    name_list = []
+def list_objects(bucket_name) -> list[str]:
+    object_list = []
     for item in storage.list_objects(bucket_name, recursive=True):
-        name_list.append(item.object_name)
-
-    name_list.sort(key=get_chunk_number)
-
-    return name_list
+        object_list.append(item.object_name)
+    object_list.sort(key=get_chunk_number)
+    return object_list
 
 
-def get_download_name(bucket_name):
-    name_list = get_name_list(bucket_name)
+def get_filename(bucket_name):
+    object_list = list_objects(bucket_name)
     # similar to function get_chunk_number but it takes the file name
-    return name_list[0].split(".chunk")[0]
+    return object_list[0].split(".chunk")[0]
 
 
 def get_file_chunks(bucket_name):
-    name_list = get_name_list(bucket_name)
-    for name in name_list:
-        chunk = storage.get_object(bucket_name, name)
+    object_list = list_objects(bucket_name)
+    for object_name in object_list:
+        chunk = storage.get_object(bucket_name, object_name)
         if chunk is None:
             break
         yield chunk.read(CHUNK_SIZE)
@@ -121,7 +120,7 @@ def download_bucket(bucket_name):
     return Response(
         stream_with_context(get_file_chunks(bucket_name)),
         headers={
-            "Content-Disposition": f"attachment; filename={get_download_name(bucket_name)}"
+            "Content-Disposition": f"attachment; filename={get_filename(bucket_name)}"
         },
     )
 
