@@ -1,0 +1,30 @@
+services:
+  app:
+    image: danielcavalcante/minio-chunked-upload-download
+    build:
+      dockerfile: Dockerfile
+    container_name: flask-app
+    ports:
+      - 5000:5000
+    networks:
+      - minio_chunked_network
+
+  minio:
+    image: minio/minio
+    container_name: ${MINIO_HOSTNAME}
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: server /data --console-address ":9001" 
+    healthcheck:
+            test:
+                ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+            interval: 30s
+            timeout: 20s
+            retries: 3
+    networks:
+      - minio_chunked_network
+
+networks:
+    minio_chunked_network:
+        name: minio_chunked_network
