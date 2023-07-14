@@ -46,7 +46,7 @@ def get_chunk_number(name: str) -> int:
     return int(y[0], base=10)
 
 
-def list_objects(storage: Minio, bucket_name) -> list[str]:
+def list_objects(storage: Minio, bucket_name) -> 'list[str]':
     object_list = []
     for item in storage.list_objects(bucket_name, recursive=True):
         object_list.append(item.object_name)
