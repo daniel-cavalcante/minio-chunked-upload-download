@@ -1,4 +1,4 @@
-const DOWNLOAD_URL = "http://localhost:5000/download";
+const DOWNLOAD_URL = "http://localhost:5000/minio/download";
 
 const getFilesList = () => {
   const bucketList = document.getElementById("bucketList");
