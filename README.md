@@ -71,3 +71,15 @@ flask --app source run
 ```
 
 The app home page will be served on `http://localhost:5000`.
+
+Notice: you will also need to connect it to a MinIO server. Please, check the
+MinIO documentation on how to do it. Alternativelly, use `docker compose` inside
+the root folder:
+
+```
+sudo docker compose up -d --build
+```
+
+This will set up the flask app AND the MinIO server as docker containers.
+Please refer to `.env.example` to see the environment variables you need to set
+before running docker compose.
