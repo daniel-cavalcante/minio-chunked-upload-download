@@ -1,7 +1,7 @@
 import os
 from typing import Any
 
-from minio import Minio
+from minio import Minio, S3Error
 
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE") or 10 * 1024 * 1024)
 
@@ -10,8 +10,13 @@ def upload_to_storage(
     storage: Minio, bucket_name: str, object_name: str, data: Any
 ) -> bool:
     try:
+        # local tests shows that this try/except is needed
+        # due to possible MinIO bug
         if not storage.bucket_exists(bucket_name):
             storage.make_bucket(bucket_name)
+    except S3Error:
+        print("INFO: bucket exists already")
+    try:
         result = storage.put_object(
             bucket_name, object_name,
             data.stream, length=-1, part_size=CHUNK_SIZE
