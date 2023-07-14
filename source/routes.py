@@ -6,21 +6,23 @@ from werkzeug.utils import secure_filename
 from source.utils import get_file_chunks, get_filename, upload_to_storage
 from source.storage import storage
 
-blueprint = Blueprint("routes", __name__)
+minio_blueprint = Blueprint("minio",
+                      __name__,
+                      template_folder="templates",
+                      static_folder="static")
 
-
-@blueprint.route("/")
+@minio_blueprint.route("/")
 def index():
     return render_template("index.html")
 
 
-@blueprint.route("/download")
+@minio_blueprint.route("/download")
 def download():
     bucket_list = [bucket.name for bucket in storage.list_buckets()]
     return bucket_list
 
 
-@blueprint.route("/download/<string:bucket_name>")
+@minio_blueprint.route("/download/<string:bucket_name>")
 def download_bucket(bucket_name):
     value = f"attachment; filename={get_filename(storage, bucket_name)}"
     return Response(
@@ -29,7 +31,7 @@ def download_bucket(bucket_name):
     )
 
 
-@blueprint.route("/upload", methods=["POST"])
+@minio_blueprint.route("/upload", methods=["POST"])
 def upload():
     # todo: set some form of validation after uploading all files
     chunk = request.files["chunk"]
