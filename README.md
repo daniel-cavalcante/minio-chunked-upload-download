@@ -80,3 +80,6 @@ the root folder:
 sudo docker compose up -d --build
 ```
 
+This will set up the flask app AND the MinIO server as docker containers.
+Please refer to `.env.example` to see the environment variables you need to set
+before running docker compose.
