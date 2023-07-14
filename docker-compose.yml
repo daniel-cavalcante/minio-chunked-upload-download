@@ -16,6 +16,8 @@ services:
       - 9000:9000
       - 9001:9001
     command: server /data --console-address ":9001" 
+    volumes:
+      - storage-data:/data
     healthcheck:
             test:
                 ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -28,3 +30,11 @@ services:
 networks:
     minio_chunked_network:
         name: minio_chunked_network
+
+volumes:
+  storage-data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${MINIO_TMP_FOLDER}
