@@ -1,6 +1,7 @@
 from flask import Flask
 
-from source.routes import home_blueprint, minio_blueprint
+from source.routes.home import home_blueprint
+from source.routes.minio import minio_blueprint
 
 
 def create_app():

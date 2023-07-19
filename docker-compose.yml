@@ -8,10 +8,12 @@ services:
       - 5000:5000
     networks:
       - minio_chunked_network
+    environment:
+      - MINIO_HOSTNAME=minio-server
 
   minio:
     image: minio/minio
-    container_name: ${MINIO_HOSTNAME}
+    container_name: minio-server
     ports:
       - 9000:9000
       - 9001:9001

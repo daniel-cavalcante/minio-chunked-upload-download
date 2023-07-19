@@ -4,14 +4,6 @@ from werkzeug.utils import secure_filename
 from source.utils import get_file_chunks, get_filename, upload_to_storage
 from source.storage import storage
 
-home_blueprint = Blueprint("home", __name__)
-
-
-@home_blueprint.route("/")
-def home():
-    return "<a href='/minio'>MinIO</a>"
-
-
 minio_blueprint = Blueprint(
     "minio", __name__, template_folder="templates", static_folder="static"
 )
