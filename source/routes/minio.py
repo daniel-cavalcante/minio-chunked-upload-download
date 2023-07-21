@@ -1,4 +1,11 @@
-from flask import Blueprint, Response, render_template, request, stream_with_context
+from flask import (
+    Blueprint,
+    Response,
+    jsonify,
+    render_template,
+    request,
+    stream_with_context,
+)
 from werkzeug.utils import secure_filename
 
 from source.database import db
@@ -19,8 +26,20 @@ def index():
 @minio_blueprint.route("/download")
 def download():
     """Returns a list of bucket names."""
-    bucket_list = [bucket.name for bucket in storage.list_buckets()]
-    return bucket_list
+    bucket_list = BucketObject.query.all()
+    data = []
+    for bucket in bucket_list:
+        data.append(
+            {
+                "id": str(bucket.id),
+                "bucket_name": str(bucket.bucket_name),
+                "filename": bucket.filename,
+            }
+        )
+    print(data)
+    return data
+    # bucket_list = [bucket.name for bucket in storage.list_buckets()]
+    # return bucket_list
 
 
 @minio_blueprint.route("/download/<string:bucket_name>")
