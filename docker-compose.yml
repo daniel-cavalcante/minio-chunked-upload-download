@@ -32,12 +32,18 @@ services:
   postgres:
     image: postgres:12
     container_name: minio-db
-    ports:
-      - 5432:5432
     environment:
+      - PGDATA=/var/lib/postgresql/data/localhost/
+      - POSTGRES_DB=minio-db
+      - POSTGRES_PORT=5432
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=minio-db
+    ports:
+      - 5432:5432
+    volumes:
+      - ${MINIO_TMP_FOLDER}:/var/lib/postgresql/data/holy_shit
+    networks:
+      - minio_chunked_network
 
 networks:
     minio_chunked_network:
