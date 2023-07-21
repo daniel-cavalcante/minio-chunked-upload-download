@@ -29,6 +29,16 @@ services:
     networks:
       - minio_chunked_network
 
+  postgres:
+    image: postgres:12
+    container_name: minio-db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=minio-db
+
 networks:
     minio_chunked_network:
         name: minio_chunked_network
