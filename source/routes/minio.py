@@ -1,6 +1,8 @@
 from flask import Blueprint, Response, render_template, request, stream_with_context
 from werkzeug.utils import secure_filename
 
+from source.database import db
+from source.models.transfered_file import BucketObject
 from source.utils import get_file_chunks, get_filename, upload_to_storage
 from source.storage import storage
 
@@ -43,4 +45,19 @@ def upload():
         return {"success": False}, 500
 
     success = upload_to_storage(storage, original_file_id, name, data=chunk)
-    return {"success": success}, 201
+    try:
+        payload = {
+            "id": original_file_id,
+            "bucket_name": original_file_id,
+            "filename": name,
+        }
+        data = BucketObject(**payload)
+        db.session.add(data)
+        db.session.commit()
+        db.session.refresh(data)  # provavelmente nem preciso disso
+    except Exception as err:
+        db.session.rollback()
+        print("ERROR", err)
+        raise
+    else:
+        return {"success": success}, 201

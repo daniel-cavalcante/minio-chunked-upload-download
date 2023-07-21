@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade() -> None:
     op.create_table(
-        "upload",
+        "bucket_object",
         sa.Column("id", sa.UUID(), primary_key=True),
         sa.Column("bucket_name", sa.UUID(), nullable=False),
         sa.Column("filename", sa.String(), nullable=False),
